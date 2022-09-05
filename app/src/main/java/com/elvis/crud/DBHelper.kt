@@ -171,20 +171,19 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
 
     // This method is for adding data in our database
     //insert
-    fun addTask(tasks: ClassListModel): Boolean {
+    fun addTask(tasks: Task): Boolean {
         val dB: SQLiteDatabase = this.writableDatabase
         val values = ContentValues()
         values.put(TASK_NAME, tasks.name)
         val _success: Long = dB.insert(TABLE_NAME, null, values)
         dB.close()
         return (Integer.parseInt("$_success") != -1)
-
     }
 
 
     // below method is to get
     // all data from our database
-    fun getTask(intExtra: Int): Cursor? {
+    fun getTasks(): Cursor? {
 
         // here we are creating a readable
         // variable of our database
@@ -196,39 +195,30 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         return db.rawQuery("SELECT * FROM " + TABLE_NAME, null)
 
     }
-  /*  fun getAllTask(intExtra: Int): List<ClassListModel> {
-        val taskList = ArrayList<ClassListModel>()
-        val dB: SQLiteDatabase = writableDatabase
-        val selectQuery = "SELECT * FROM $TABLE_NAME"
-        val cursor: Cursor = dB.rawQuery(selectQuery, null)
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                do {
-                    val tasks = ClassListModel()
-                    tasks.id = Integer.parseInt(cursor.getString(cursor.getColumnIndex(ID)))
-                    tasks.name = cursor.getString(cursor.getColumnIndex(TABLE_NAME))
-                    taskList.add(tasks)
 
-                } while (cursor.moveToNext())
-            }
-            cursor.close()
-            return taskList
-        }*/
-  fun updateTask(task: ClassListModel) : Boolean {
+    fun getTask(id : Int): Cursor? {
+        // here we are creating a readable
+        // variable of our database
+        // as we want to read value from it
+        val db = this.readableDatabase
+        // below code returns a cursor to
+        // read data from the database
+        return db.rawQuery("SELECT * FROM $TABLE_NAME WHERE $ID = $id", null)
+    }
+
+  fun updateTask(task: Task) : Boolean {
       val dB : SQLiteDatabase = this.writableDatabase
       val values = ContentValues()
       values.put(TASK_NAME, task.name)
-      val _success: Long = dB.update(TABLE_NAME,values, ID + "=?", arrayOf(_ID.toString())).toLong()
+      val success: Long = dB.update(TABLE_NAME,values, ID + "=?", arrayOf(task.id.toString())).toLong()
       dB.close()
-      return Integer.parseInt("$_success") != -1
-
+      return Integer.parseInt("$success") != -1
   }
-    fun deleteTask(intExtra: Any): Any {
+    fun deleteTask(id: Int): Any {
         val dB: SQLiteDatabase = this.writableDatabase
-        val _success: Int = dB.delete(TABLE_NAME, ID + "=?", arrayOf(_ID.toString()))
+        val success: Int = dB.delete(TABLE_NAME, "$ID=?", arrayOf(id.toString()))
         dB.close()
-        return Integer.parseInt("$_success") != -1
-
+        return Integer.parseInt("$success") != -1
     }
 
     companion object{

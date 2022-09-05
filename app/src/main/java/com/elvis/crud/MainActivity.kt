@@ -2,7 +2,6 @@ package com.elvis.crud
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.database.Cursor
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -14,14 +13,13 @@ class MainActivity : AppCompatActivity() {
     lateinit var btnAddTask : Button
     var taskListAdapter : TaskListAdapter ?= null
     var dbHandler : DBHelper ?= null
-    var taskList : List<ClassListModel> = ArrayList<ClassListModel>()
+    var taskList : ArrayList<Task> = ArrayList()
     var linearLayoutManager : LinearLayoutManager ?= null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        val rvList : RecyclerView = findViewById(R.id.rvList)
-        val btnAddTask : Button = findViewById(R.id.btnAddTask)
+        rvList = findViewById(R.id.rvList)
+        btnAddTask  = findViewById(R.id.btnAddTask)
 
         dbHandler = DBHelper(this, null)
         fetchList()
@@ -34,14 +32,24 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun fetchList() {
-        dbHandler!!.getTask(intent.getIntExtra("Id", 0)).also { taskList  }
-        taskListAdapter = TaskListAdapter(taskList, applicationContext)
-        linearLayoutManager = LinearLayoutManager(applicationContext)
-        rvList.layoutManager = linearLayoutManager
-        rvList.adapter = taskListAdapter
-        taskListAdapter?.notifyDataSetChanged()
 
+        val taskCursor = dbHandler!!.getTasks()
 
+        taskCursor?.moveToFirst()
+        if (taskCursor != null) {
+            while (taskCursor.moveToNext())
+            {
+               val id  = taskCursor.getInt(0)
+               val title = taskCursor.getString(1)
+               val task = Task(id, title)
+               taskList.add(task)
+            }
+        }
+         taskListAdapter = TaskListAdapter(taskList, applicationContext)
+         linearLayoutManager = LinearLayoutManager(applicationContext)
+         rvList.layoutManager = linearLayoutManager
+         rvList.adapter = taskListAdapter
+         taskListAdapter?.notifyDataSetChanged()
     }
 }
 
